@@ -1,5 +1,6 @@
-import Kitura
 import HeliumLogger
+import Kitura
+import Yaml
 
 HeliumLogger.use()
 
@@ -9,5 +10,22 @@ router.get("/") {
     response.send("Hello, World!")
     next()
 }
-Kitura.addHTTPServer(onPort: 8090, with: router)
+
+var yml = ""
+
+do {
+    yml = try String(contentsOfFile: "./config.yml", encoding: .utf8)
+} catch let err {
+    throw err
+}
+
+var config: Yaml = [:]
+
+do {
+    config = try Yaml.load(yml)
+} catch let err {
+    throw err
+}
+
+Kitura.addHTTPServer(onPort: config["port"].int ?? 0, with: router)
 Kitura.run()
